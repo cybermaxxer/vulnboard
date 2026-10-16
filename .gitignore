@@ -33,8 +33,6 @@ app/uploads/*
 .DS_Store
 Thumbs.db
 
-#documentation
+#etc
 /AGENTS.md
-/sdd.md
-/product_brief.md
 

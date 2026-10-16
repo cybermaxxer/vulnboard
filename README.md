@@ -49,11 +49,13 @@ this is the exploitation-only version of the app. no fixed/patched branch, by de
 ```
 vulnboard/
 ├── app/                # flask application
-├── docker-compose.yml
+├── docker-compose.yml 
 ├── Dockerfile
 ├── .env.example
 ├── writeups/           # one markdown file per vulnerability
 └── README.md
+└── documentation/ # product_brief.md + sdd.md
+└── notes/ # milestones, pretty much
 ```
 
 ---
