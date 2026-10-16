@@ -48,14 +48,16 @@ this is the exploitation-only version of the app. no fixed/patched branch, by de
 
 ```
 vulnboard/
-├── app/                # flask application
-├── docker-compose.yml 
-├── Dockerfile
+├── app/ #application main logic and whatnot
+├── development_plans/ #organization basically 
+├── notes/ #milestones 
+├── writeups/ # exploitation, possibly defense
 ├── .env.example
-├── writeups/           # one markdown file per vulnerability
-└── README.md
-└── documentation/ # product_brief.md + sdd.md
-└── notes/ # milestones, pretty much
+├── .gitignore
+├── docker-compose.yml #connects image with app logic
+├── Dockerfile #blueprint for docker image
+├── README.md
+└── requirements.txt #dependencies
 ```
 
 ---
