@@ -3,6 +3,8 @@ a deliberately vulnerable guestbook/blog app, built to practice and document web
 
 the app chains together every vulnerability class covered in those modules plus malicious file upload and remote code execution, so the full attacker path (find an input → exploit it → get a shell) lives in one small codebase instead of five disconnected scripts.
 
+i will be using ai to guide me, help me set everything up and for boilerplate code. in all abovementioned cases, i will try to have it explain everything to me in profound detail, so that i may replicate it in the future.
+
 stack:
 
 - **backend:** flask (python)
@@ -48,6 +50,7 @@ this is the exploitation-only version of the app. no fixed/patched branch, by de
 vulnboard/
 ├── app/                # flask application
 ├── docker-compose.yml
+├── Dockerfile
 ├── .env.example
 ├── writeups/           # one markdown file per vulnerability
 └── README.md

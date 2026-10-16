@@ -1,0 +1,19 @@
+services:                                      # Container services defined under this stack
+  web:                                         # Service #1: Flask Web App
+    build: .                                   # Build container image using Dockerfile in current folder
+    ports:
+      - "127.0.0.1:5000:5000"                  # Map port 5000 of container to host's 127.0.0.1:5000 (localhost only)
+    env_file:
+      - .env                                   # Pass key-value pairs from .env directly into web container environment
+    depends_on:
+      - db                                     # Ensure database container starts before web container starts
+
+  db:                                          # Service #2: MySQL Database
+    image: mysql:8.0                           # Download official MySQL 8.0 image from Docker Hub
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Reads root password variable from .env file[cite: 5, 7]
+      MYSQL_DATABASE: ${MYSQL_DATABASE}        # Creates default database 'vulnboard' on startup[cite: 5, 7]
+      MYSQL_USER: ${MYSQL_USER}                # Creates database user 'vulnuser' on startup[cite: 5, 7]
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}        # Sets password for 'vulnuser' on startup[cite: 5, 7]
+    ports:
+      - "127.0.0.1:3306:3306"                  # Map MySQL port 3306 to localhost only so host can inspect DB directly
