@@ -11,9 +11,15 @@ services:                                      # Container services defined unde
   db:                                          # Service #2: MySQL Database
     image: mysql:8.0                           # Download official MySQL 8.0 image from Docker Hub
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Reads root password variable from .env file[cite: 5, 7]
-      MYSQL_DATABASE: ${MYSQL_DATABASE}        # Creates default database 'vulnboard' on startup[cite: 5, 7]
-      MYSQL_USER: ${MYSQL_USER}                # Creates database user 'vulnuser' on startup[cite: 5, 7]
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}        # Sets password for 'vulnuser' on startup[cite: 5, 7]
-    ports:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Reads root password variable from .env file
+      # the root password is used to authenticate the root user, which has full administrative privileges on the MySQL server. It is important to set a strong password for security reasons, especially if the database is exposed to external networks.
+      MYSQL_DATABASE: ${MYSQL_DATABASE}        # Creates default database 'vulnboard' on startup
+      # the database name is used to create a new database with the specified name when the MySQL container is initialized. This allows the application to have a dedicated database to store its data, and it can be accessed using the provided credentials.
+      MYSQL_USER: ${MYSQL_USER}                # Creates database user 'vulnuser' on startup
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}        # Sets password for 'vulnuser' on startup
+      #vuln user will have full privileges on the vulnboard database, but no privileges on other databases. This is a common practice to limit the scope of access for application users, enhancing security by preventing them from accessing or modifying data in other databases.
+      #tl;dr: by default, the official mysql docker image grants vulnuser full privileges, 
+      # but scoped only to the vulnboard database, nothing server-wide, nothing on other databases. 
+      #it’s not a hand-picked restricted permission set, it’s “all rights, but fenced to one schema.”
+    ports: #
       - "127.0.0.1:3306:3306"                  # Map MySQL port 3306 to localhost only so host can inspect DB directly

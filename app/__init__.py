@@ -11,9 +11,13 @@ def create_app():                              # Application Factory function th
     app.config.from_object(Config)             # Loads all attributes from Config class into Flask's internal config dictionary
     app.teardown_appcontext(close_db)          # Registers close_db to run automatically at end of every HTTP request
 
-    @app.route("/")                            # Route Decorator: maps URL path '/' to index() function below
+    @app.route("/")                            # Route Decorator: maps URL path '/' to index() function below 
+    # the decorator is something that runs before the function it decorates. In this case, it tells Flask to call the index() function whenever a user visits the root URL of the web application
+    # the decorator runs when the app is initialized, not when the function is called. It sets up the routing so that Flask knows which function to call for a given URL path.
+    # to make it run or to create something that runs when the function is called, you would need to put that code inside the function itself, not in the decorator, a wrapper function can be used to modify the behavior of the decorated function, but it would still be executed when the decorated function is called, not when the decorator is applied.
+    
     def index():
-        return "VulnBoard setup complete and running!" # Text sent back to user browser on visiting http://127.0.0.1:5000/
+        return render_template("index.html") # Text sent back to user browser on visiting http://127.0.0.1:5000/
 
     @app.route("/debug-test")                  # Route Decorator: maps URL path '/debug-test' to debug_test() function
     def debug_test():
