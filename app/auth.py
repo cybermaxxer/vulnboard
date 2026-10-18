@@ -84,7 +84,7 @@ def delete_account():
     db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
     cursor = db.cursor()  # Creates a new cursor object to execute SQL queries
     #if there are any posts associated with the user, they will be deleted automatically due to the ON DELETE CASCADE constraint defined in the database schema. This ensures that all related data is cleaned up when a user account is deleted.
-    cursor.execute("DELETE FROM posts WHERE user_id = %s", (user_id,)) #just in case though.
+    cursor.execute(f"DELETE FROM posts WHERE user_id = {user_id}") #just in case though.
     
     sql_query = f"DELETE FROM users WHERE id = {user_id}"  # SQL query to delete the user from the 'users' table based on their ID
     cursor.execute(sql_query)  # Executes the SQL query to delete the user from the database
