@@ -21,5 +21,7 @@ services:                                      # Container services defined unde
       #tl;dr: by default, the official mysql docker image grants vulnuser full privileges, 
       # but scoped only to the vulnboard database, nothing server-wide, nothing on other databases. 
       #it’s not a hand-picked restricted permission set, it’s “all rights, but fenced to one schema.”
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Mounts init.sql file to container's initialization directory
     ports: #
       - "127.0.0.1:3306:3306"                  # Map MySQL port 3306 to localhost only so host can inspect DB directly

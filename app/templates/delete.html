@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VulnBoard</title>
+</head>
+<body>
+    {% if session.get('username') %}
+        <p>Welcome, {{ session['username'] }}! <a href="/logout">Logout</a></p>
+        <p><a href="/delete">Delete Account</a></p>
+        <form method="POST" action="/delete">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <button type="submit">delete</button>
+    </form>        
+    {% else %}
+        <p>you're not logged in. in order to delete your account, you must be logged in.</p>
+    {% endif %}
+
+</body>
+</html>
