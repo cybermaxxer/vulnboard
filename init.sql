@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(100) NOT NULL,
     content TEXT NOT NULL,
     user_id INT,
+    image_path VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

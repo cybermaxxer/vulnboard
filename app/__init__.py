@@ -52,5 +52,38 @@ def create_app():                              # Application Factory function th
         users = cursor.fetchall()  # Fetches all rows of the result set as a list of dictionaries
         cursor.close()  # Closes the cursor to free up database resources
         return render_template("users.html", users=users)  # Renders the view_users template and passes the list of users to it
-    
+    @app.route("/upload", methods=["GET", "POST"])
+    def upload():
+        if request.method == "POST":
+            file = request.files.get("file")
+            content = request.form.get("content")
+            title = request.form.get("title")
+            if not content or not title:
+                return "Content and title are required.", 400
+            db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+            cursor = db.cursor()  # Creates a new cursor object to execute SQL queries
+            if file:
+                sql_query = f"INSERT INTO posts (title, content, image_path, user_id) VALUES ('{title}', '{content}', 'uploads/{file.filename}', {session['user_id']})"  # SQL query to insert a new post into the 'posts' table with the uploaded file's name
+                cursor.execute(sql_query)  # Executes the SQL query to insert the new post into the database
+                db.commit()  # Commits the transaction to save the changes to the database
+                cursor.close()  # Closes the cursor to free up database resources
+                # Save the uploaded file to a desired location (e.g., 'uploads' folder)
+                return f"File '{file.filename}' uploaded successfully!"
+            else:
+                sql_query = f"INSERT INTO posts (title, content, user_id) VALUES ('{title}', '{content}', {session['user_id']})"  # SQL query to insert a new post into the 'posts' table without an image
+                cursor.execute(sql_query)  # Executes the SQL query to insert the new post into the database
+                db.commit()  # Commits the transaction to save the changes to the database
+                return "Post created successfully!"
+        elif request.method == "GET":
+            return render_template("upload.html")  # Renders the upload template for GET requests
+    @app.route("/see")
+    def see():
+        db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+        cursor = db.cursor(dictionary=True)  # Creates a new cursor object to execute SQL queries
+        cursor.execute("SELECT * FROM posts")  # Executes a SQL query to retrieve all posts
+        posts = cursor.fetchall()  # Fetches all rows of the result set as a list of dictionaries
+        cursor.close()  # Closes the cursor to free up database resources
+        for post in posts:
+            post["username"] = get_username_by_id(post["user_id"])  # Retrieves the username associated with each post's user ID and adds it to the post dictionary
+        return render_template("see.html", posts=posts)  # Renders the see template
     return app                                 # Returns the fully configured Flask app instance

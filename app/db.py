@@ -15,3 +15,17 @@ def close_db(e=None):                          # Function that cleans up the dat
     db = g.pop('db', None)                     # Removes the database connection from g storage
     if db is not None:                         # If an active connection existed...
         db.close()                             # Closes the connection to free server resources
+        g.pop('cursor', None)
+        
+def get_username_by_id(user_id):
+    if user_id is None:
+        return None
+    db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+    cursor = db.cursor(dictionary=True)  # Creates a new cursor object to execute SQL queries
+    sql_query = f"SELECT username FROM users WHERE id = {user_id}"  # SQL query to retrieve the username based on the user ID
+    cursor.execute(sql_query)  # Executes the SQL query
+    user = cursor.fetchone()  # Fetches the first row of the result set as a dictionary
+    cursor.close()  # Closes the cursor to free up database resources
+    if user is not None:  # If a user record was found in the database
+        return user["username"]  # Returns the username associated with the provided user ID
+    return None  # Returns None if no user record was found for the provided user ID

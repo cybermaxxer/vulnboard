@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VulnBoard</title>
+</head>
+<body>
+    <h1>Welcome to VulnBoard upload page</h1>
+    <h2>here you can make a post visible to everybody. you can also insert an image if you want, though it's optional. only 1 image allowed.</h2>
+    {% if session.get('username') %}
+        <p>Welcome, {{ session['username'] }}! <a href="/logout">Logout</a></p>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+            <br>
+            <label for="content">Content:</label>
+            <textarea id="content" name="content" required></textarea>
+            <br>
+            <label for="image">Image (optional):</label>
+            <input type="file" id="image" name="image">
+            <br>
+            <button type="submit">Upload</button>
+        </form>
+    {% else %}
+        <p>you're not logged in. in order to make a post, you must be logged in.</p>
+    {% endif %}
+
+</body>
+
+</html>

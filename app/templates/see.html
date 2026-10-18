@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VulnBoard</title>
+</head>
+<body>
+    <h1> Browse Posts </h1>
+    {% if session.get('username') %}
+        <p>Welcome, {{ session['username'] }}! <a href="/logout">Logout</a></p>
+        <p><a href="/delete">Delete Account</a></p>
+        <p><a href="/upload">Create Post</a></p>
+        <h2>Posts:</h2>
+        {% for post in posts %}
+            <div>
+                <h3>{{ post.title }}</h3>
+                <p>{{ post.content }}</p>
+                {% if post.image_path %}
+                    <img src="{{ post.image_path }}" alt="Post Image" style="max-width: 300px;">
+                {% endif %}
+                <p>Posted by: {{ post.username }}</p>
+                <hr>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>you're not logged in. in order to see posts, you must be logged in.</p>
+    {% endif %}
+</body>
+</html>

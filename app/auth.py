@@ -35,8 +35,9 @@ def create_user(username, password):
     sql_query = f"INSERT INTO users (username, password) VALUES ('{username}', '{password}')"  # SQL query to insert a new user into the 'users' table
     cursor.execute(sql_query)  # Executes the SQL query to insert the new user into the database
     db.commit()  # Commits the transaction to save the changes to the database
+    created = cursor.rowcount > 0  # Checks if any rows were affected by the insert operation
     cursor.close()  # Closes the cursor to free up database resources
-    if cursor.rowcount > 0:  # Checks if any rows were affected by the insert operation
+    if created:
         return "user created successfully", 201  # Returns True, indicating that the user was successfully created
     return "user creation failed", 500  # Returns False, indicating that the user creation failed
 
@@ -82,6 +83,9 @@ def delete_account():
         return "You can only delete your own account.", 403  # Returns an error message with a 403 Forbidden status code
     db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
     cursor = db.cursor()  # Creates a new cursor object to execute SQL queries
+    #if there are any posts associated with the user, they will be deleted automatically due to the ON DELETE CASCADE constraint defined in the database schema. This ensures that all related data is cleaned up when a user account is deleted.
+    cursor.execute("DELETE FROM posts WHERE user_id = %s", (user_id,)) #just in case though.
+    
     sql_query = f"DELETE FROM users WHERE id = {user_id}"  # SQL query to delete the user from the 'users' table based on their ID
     cursor.execute(sql_query)  # Executes the SQL query to delete the user from the database
     db.commit()  # Commits the transaction to save the changes to the database
