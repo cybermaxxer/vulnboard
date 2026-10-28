@@ -1,7 +1,7 @@
 #logic to authenticate the user and manage their session, including login, logout, and registration functionalities. It may also include password hashing, token generation, and other security measures to protect user credentials and session data.
 from flask import request, session, redirect, url_for, render_template, current_app
 
-from app.db import get_db
+from logic.db import get_db
 
 def handle_registration():
     username = request.form.get("username")  # Retrieves the username from the submitted form data
@@ -45,6 +45,13 @@ def get_user_by_credentials(username, password):
     db = get_db()  # retrieves active connection, g.db
     cursor = db.cursor(dictionary=True)
     sql_query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"  # vulnerable: both fields interpolated raw into the WHERE clause
+    # one of the payloads:
+    #a' OR '1'='1 for the password field, which would make the WHERE clause always true and return the first user in the database.
+    # basically does the following: ... AND password = '' (automatic 2 quotes, they are interpreted as a string literal that is emptified, right?)
+    #so we inject a' OR '1'='1 
+    # the things that were supposed to embrace or query become:
+    # (begin embracer)'whatever'(close embracer, injected), OR '1'='1(end embracer, intended to be a close embracer)
+    
     cursor.execute(sql_query)
     user = cursor.fetchone()
     cursor.close()

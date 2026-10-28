@@ -33,6 +33,6 @@ app/uploads/*
 .DS_Store
 Thumbs.db
 
-#etc
-/AGENTS.md
-
+# local stuff for development
+context*.md
+AGENTS.md

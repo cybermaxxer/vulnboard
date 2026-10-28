@@ -58,6 +58,8 @@ vulnboard/
 ├── Dockerfile #blueprint for docker image
 ├── README.md
 └── requirements.txt #dependencies
+└── context_gatherer.sh #basically a small shell script that helps me to dump the whole project into the LLMs for it to break down some details, concepts,  or help me write code. the rules for such chats are to be found in code_tutor.md
+
 ```
 
 ---
