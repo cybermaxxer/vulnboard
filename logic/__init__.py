@@ -48,7 +48,7 @@ def create_app():                              # Application Factory function th
         return render_template("delete.html")  # Renders the delete account template
     
     @app.route("/delete", methods=["POST"])
-    def delete_post():
+    def delete_the_account():
         return delete_account()  # Calls the delete account handler function from auth.py
     
     @app.route("/users")
@@ -102,4 +102,25 @@ def create_app():                              # Application Factory function th
     @app.route("/uploads/<path:filename>")
     def serve_uploaded_file(filename):
         return send_from_directory(UPLOAD_FOLDER, filename)  # Serves uploaded files from the project root uploads directory
+    
+    @app.route("/deletepost/<int:post_id>")
+    def delete_post(post_id):
+        db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+        cursor = db.cursor(dictionary=True)  # Creates a cursor that returns each post as a dictionary
+        cursor.execute(f"SELECT * FROM posts WHERE id = {post_id}")  # Executes a SQL query to delete the post with the specified ID
+        post = cursor.fetchone()  # Fetches the first row of the result set, which will be None if no post is found
+        if post is None:
+            cursor.close()
+            return "Post not found.", 404
+        if post.get("user_id") != session.get("user_id"):  # Checks if the post belongs to the currently logged-in user
+            cursor.close()  # Closes the cursor to free up database resources
+            return "You are not authorized to delete this post.", 403  # Returns an error message with a 403 Forbidden status code
+        if post is None:  # If no post was found with the specified ID
+            cursor.close()  # Closes the cursor to free up database resources
+            return "Post not found.", 404  # Returns an error message with a 404 Not Found status code
+        cursor.execute(f"DELETE FROM posts WHERE id = {post_id}")  # Executes a SQL query to delete the post with the specified ID
+        db.commit()  # Commits the transaction to save the changes to the database
+        cursor.close()  # Closes the cursor to free up database resources
+        return "Post deleted successfully!"  # Returns a success message
+    
     return app                                 # Returns the fully configured Flask app instance

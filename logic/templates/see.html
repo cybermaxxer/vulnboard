@@ -14,12 +14,16 @@
         <h2>Posts:</h2>
         {% for post in posts %}
             <div>
-                <h3>{{ post.title }}</h3>
-                <p>{{ post.content }}</p>
+                <h3>{{ post.title | safe}}</h3>
+                <p>{{ post.content | safe }}</p>
                 {% if post.image_path %}
-                    <img src="{{ post.image_path }}" alt="Post Image" style="max-width: 300px;">
+                    <img src="{{ post.image_path | safe }} " alt="Post Image" style="max-width: 300px;">
+                    {# left here with the safe thingie for security and prevention of XSS attacks, but that opens up the possibility of other security vulnerabilities, such as csrf #}
+                    {# basically what it does is that it inserts the thing as-is, without any escaping or sanitization, which can be dangerous, but allows the full path to be inserted safely #}
                 {% endif %}
                 <p>Posted by: {{ post.username }}</p>
+                <p>Post ID: {{ post.id }}</p>
+                <a href="/deletepost/{{ post.id }}">Delete post</a>
                 <hr>
             </div>
         {% endfor %}

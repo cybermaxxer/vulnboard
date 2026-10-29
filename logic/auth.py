@@ -76,7 +76,7 @@ def handle_logout():
 
 def delete_account():
     user_id = session.get("user_id")  # Retrieves the user's ID from the session
-    password = request.form.get("password")  # Retrieves the password from the submitted form data
+    password = request.args.get("password")  # Retrieves the password from the submitted form data
     if not password:  # If the password is not provided in the form submission
         return "Password is required to delete your account.", 400  # Returns an error message with a 400 Bad Request status code
     if not user_id:  # If the user is not logged in (no user ID in session)
