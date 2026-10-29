@@ -18,8 +18,8 @@ instance/
 .webassets-cache
 
 # app specific: uploaded files are generated at runtime, never commit them
-app/uploads/*
-!app/uploads/.gitkeep
+logic/uploads/*
+!logic/uploads/.gitkeep
 
 # docker
 *.log
