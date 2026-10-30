@@ -3,11 +3,12 @@
 #also the thing about __init__.py is that it can be empty, but it must be present in the directory to indicate that the directory should be treated as a package. In this case, it contains code to set up the Flask app and its configuration.
 
 import os
+import pickle
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
 from logic.config import *                # Imports Config class created in Step 1
 from logic.db import *                # Imports close_db cleanup function created in Step 2
 from logic.auth import *                # Imports handle_registration function created in Step 3
-
+import pickle
 UPLOAD_FOLDER = "/app/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -50,12 +51,25 @@ def create_app():                              # Application Factory function th
     @app.route("/delete", methods=["POST"])
     def delete_the_account():
         return delete_account()  # Calls the delete account handler function from auth.py
+    @app.route("/admin")
+    def admin():
+
+        if not session.get("is_admin"):  # Checks if the user is logged in and has admin privileges
+            return "Access denied. Admins only.", 403  # Returns an error message with a 403 Forbidden status code if the user is not an admin
+        db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+        cursor = db.cursor(dictionary=True)  # Creates a new cursor object to execute SQL queries
+        cursor.execute("SELECT * FROM posts")  # Executes a SQL query to retrieve all usernames and passwords from the 'users' table
+        posts = cursor.fetchall()  # Fetches all
+        for post in posts:
+            post["username"] = get_username_by_id(post["user_id"])  # Retrieves the username associated with each post's user ID and adds it to the post dictionary
+        cursor.close()  # Closes the cursor to free up database resources
+        return render_template("admin.html", posts=posts)  # Renders the admin template for users with admin privileges
     
     @app.route("/users")
     def view_users():
         db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
         cursor = db.cursor(dictionary=True)  # Creates a new cursor object to execute SQL queries
-        cursor.execute("SELECT id, username, password FROM users")  # Executes a SQL query to retrieve all usernames and passwords from the 'users' table
+        cursor.execute("SELECT * FROM users")  # Executes a SQL query to retrieve all usernames and passwords from the 'users' table
         users = cursor.fetchall()  # Fetches all rows of the result set as a list of dictionaries
         cursor.close()  # Closes the cursor to free up database resources
         return render_template("users.html", users=users)  # Renders the view_users template and passes the list of users to it
@@ -99,9 +113,34 @@ def create_app():                              # Application Factory function th
         for post in posts:
             post["username"] = get_username_by_id(post["user_id"])  # Retrieves the username associated with each post's user ID and adds it to the post dictionary
         return render_template("see.html", posts=posts)  # Renders the see template
+    
     @app.route("/uploads/<path:filename>")
     def serve_uploaded_file(filename):
         return send_from_directory(UPLOAD_FOLDER, filename)  # Serves uploaded files from the project root uploads directory
+    @app.route("/admin/preview/<int:post_id>") #page for admin to posts before allowing them to be published. This is a common feature in content management systems to allow for moderation and review of user-generated content.
+    def admin_preview(post_id):
+        if not session.get("is_admin"): # Checks if the user is logged in and has admin privileges
+            return "Access denied. Admins only.", 403  # Returns an error message with a 403 Forbidden status code if the user is not an admin
+        db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+        cursor = db.cursor(dictionary=True)  # Creates a new cursor object to execute SQL queries
+        cursor.execute(f"SELECT * FROM posts WHERE id = {post_id}")  # Executes a SQL query to retrieve the post with the specified ID
+        post = cursor.fetchone()  # Fetches the first row of the result set as a dictionary
+        cursor.close()  # Closes the cursor to free up database resources
+        if post is None:
+            return "Post not found.", 404
+        preview_data = None
+        if post.get("image_path"):
+            filename = os.path.basename(post["image_path"])
+            stored_file_path = os.path.join(UPLOAD_FOLDER, filename)
+
+            try:
+                with open(stored_file_path, "rb") as stored_file:
+                    loaded_object = pickle.load(stored_file)
+                preview_data = f"Loaded object: {loaded_object!r}"
+            except (FileNotFoundError, pickle.UnpicklingError, EOFError, ValueError):
+                preview_data = "File was not a valid preview object."
+
+        return render_template("admin_preview.html", post=post, preview_data=preview_data)        
     
     @app.route("/deletepost/<int:post_id>")
     def delete_post(post_id):
@@ -112,7 +151,7 @@ def create_app():                              # Application Factory function th
         if post is None:
             cursor.close()
             return "Post not found.", 404
-        if post.get("user_id") != session.get("user_id"):  # Checks if the post belongs to the currently logged-in user
+        if post.get("user_id") != session.get("user_id") and not session.get("is_admin"):  # Checks if the post belongs to the currently logged-in user
             cursor.close()  # Closes the cursor to free up database resources
             return "You are not authorized to delete this post.", 403  # Returns an error message with a 403 Forbidden status code
         if post is None:  # If no post was found with the specified ID
@@ -122,5 +161,16 @@ def create_app():                              # Application Factory function th
         db.commit()  # Commits the transaction to save the changes to the database
         cursor.close()  # Closes the cursor to free up database resources
         return "Post deleted successfully!"  # Returns a success message
+    
+    @app.route("/approvepost/<int:post_id>")
+    def approve_post(post_id):
+        if not session.get("is_admin"):  # Checks if the user is logged in and has admin privileges
+            return "Access denied. Admins only.", 403  # Returns an error message with a 403 Forbidden status code if the user is not an admin
+        db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+        cursor = db.cursor(dictionary=True)  # Creates a new cursor object to execute SQL queries
+        cursor.execute(f"UPDATE posts SET is_approved = TRUE WHERE id = {post_id}")  # Executes a SQL query to approve the post with the specified ID
+        db.commit()  # Commits the transaction to save the changes to the database
+        cursor.close()  # Closes the cursor to free up database resources
+        return "Post approved successfully!"  # Returns a success message
     
     return app                                 # Returns the fully configured Flask app instance

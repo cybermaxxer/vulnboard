@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>VulnBoard - Admin</title>
+    </head>
+    <body>
+        <h1>VulnBoard - Admin</h1>
+        <p>Welcome, {{ session['username'] }}! <a href="/logout">Logout</a></p>
+        {% if session.get('is_admin') %}
+            <p>You are logged in as an admin.</p>
+            <p><a href="/users">View Users</a></p>
+            {% for post in posts %}
+                <div>
+                    <h2>{{ post.title | safe }}</h2>
+                    <p>{{ post.content | safe }}</p>
+                    <img src="{{post.image_path | safe}}" alt="Post Image" style="max-width: 300px;">
+                    <p>Post ID: {{ post.id }}</p>
+                    <p>Posted by: {{ post.username | safe }}</p>
+                    <p>Is Approved: {{ post.is_approved | safe }}</p>
+                    <a href="/admin/preview/{{ post.id }}">Preview Post</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>You're not logged in as an admin.</p>
+        {% endif %}
+    </body>
+</html>

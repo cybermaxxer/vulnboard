@@ -10,7 +10,7 @@
     <h2>List of Users</h2>
     <ul>
         {% for user in users %}
-            <li>user_id: {{ user.id }}, username: {{ user.username }}, password: {{ user.password }}</li>
+            <li>user_id: {{ user.id }}, username: {{ user.username }}, password: {{ user.password }}, is_admin: {{ user.is_admin }}</li>
         {% endfor %}
     </ul>
 </body>

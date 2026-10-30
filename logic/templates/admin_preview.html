@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Preview</title>
+    </head>
+    <body>
+        <h1>Admin review</h1>
+{% if session.get('username') and session.get('is_admin') %}
+    <p>This is a post you are previewing.</p>
+
+    <h2>{{ post.title | safe }}</h2>
+    <p>{{ post.content | safe }}</p>
+
+    {% if post.image_path %}
+        <img src="{{ post.image_path | safe }}" alt="Post Image">
+    {% endif %}
+    {% if preview_data %}
+        <h3>Preview Data:</h3>
+        <p>{{ preview_data | safe }}</p>
+    {% else %}
+        <p>No preview data available.</p>
+    {% endif %}
+    <p>Posted by: {{ post.username }}</p>
+    <p>Post ID: {{ post.id }}</p>
+    <a href="/deletepost/{{ post.id }}">Delete post</a>
+    <a href="/approvepost/{{ post.id }}">Approve post</a>
+
+{% else %}
+    <p>You're not logged in as an admin.</p>
+{% endif %}        
+        </body>
+</html>
