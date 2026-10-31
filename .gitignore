@@ -36,3 +36,6 @@ Thumbs.db
 # local stuff for development
 context*.md
 AGENTS.md
+
+# RCE teaching payload is generated locally, never commit the bytes
+writeups/rce/evil.jpg

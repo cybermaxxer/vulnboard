@@ -156,13 +156,23 @@ it does not answer:
 did this user intentionally request deletion?
 ```
 
+## manual verification result
+
+the local Docker test confirmed all three parts of the attack:
+
+1. the owner opened `/deletepost/<id>` and received `Post deleted successfully!` with a successful response.
+2. a different normal user opened the same URL and received `You are not authorized to delete this post.` with HTTP status `403`.
+3. a stored image request to `/deletepost/<victim_post_id>` fired when the owner opened `/see`, and the victim post was deleted without a click.
+
+This combination is the expected CSRF result. The ownership check blocks a different user's session, but it does not stop another site or stored post from causing the owner's browser to send the request.
+
 ## verification checklist
 
 | check | result |
 |---|---|
-| logged in owner visits `/deletepost/<id>` | the post is deleted immediately |
-| another logged in user visits the same URL | the route returns `403` |
-| stored `<img src="/deletepost/10">` is rendered by the owner | the browser sends the delete request without a click |
+| logged in owner visits `/deletepost/<id>` | confirmed, post deleted with a successful response |
+| another logged in user visits the same URL | confirmed, route returns `403` |
+| stored `<img src="/deletepost/<id>">` is rendered by the owner | confirmed, browser sends the delete request without a click |
 | the route changes state with `GET` | yes |
 | the route requires a csrf token | no |
 | the route requires confirmation | no |

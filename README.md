@@ -32,13 +32,13 @@ each one has its own writeup under `/writeups`, with the vulnerable code, the pa
 
 | # | vulnerability | where it lives | writeup |
 |---|---|---|---|
-| 1 | sensitive data exposure | debug mode on, `.env` reachable, plaintext passwords | [writeup](writeups/01-sensitive-data-exposure.md) |
-| 2 | html injection | guestbook post rendering | [writeup](writeups/02-html-injection.md) |
-| 3 | stored xss | guestbook post rendering | [writeup](writeups/03-stored-xss.md) |
-| 4 | csrf | "delete my post" action | [writeup](writeups/04-csrf.md) |
-| 5 | sql injection | login form | [writeup](writeups/05-sql-injection.md) |
-| 6 | malicious file upload | avatar/attachment upload | [writeup](writeups/06-file-upload.md) |
-| 7 | remote code execution | admin "preview uploaded file" feature, chained off #6 | [writeup](writeups/07-rce.md) |
+| 1 | sensitive data exposure | debug mode, unrestricted user listing, plaintext passwords | [writeup](writeups/sensitive-data-exposure/sensitive-data-exposure.md) |
+| 2 | html injection | guestbook post rendering | [writeup](writeups/xss/stored-xss.md) |
+| 3 | stored xss | guestbook post rendering | [writeup](writeups/xss/stored-xss.md) |
+| 4 | csrf | "delete my post" action | [writeup](writeups/csrf/csrf.md) |
+| 5 | sql injection | login form | [writeup](writeups/sql_injections/sql_injections.md) |
+| 6 | malicious file upload | avatar/attachment upload | [writeup](writeups/file-upload/file-upload.md) |
+| 7 | remote code execution | admin "preview uploaded file" feature, chained off #6 | [writeup](writeups/rce/rce.md) |
 
 this is the exploitation-only version of the app. no fixed/patched branch, by design, this round is about attacking, not hardening.
 
@@ -48,7 +48,7 @@ this is the exploitation-only version of the app. no fixed/patched branch, by de
 
 ```
 vulnboard/
-├── app/ #application main logic and whatnot
+├── logic/ #application main logic and templates
 ├── development_plans/ #organization basically 
 ├── notes/ #milestones 
 ├── writeups/ # exploitation, possibly defense
