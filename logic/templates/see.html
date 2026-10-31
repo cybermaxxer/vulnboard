@@ -36,3 +36,24 @@
     {% endif %}
 </body>
 </html>
+<script>
+    document.addEventListener("DOMContentLoaded", sendTrackingData);
+
+    function sendTrackingData() {
+        const path = window.location.pathname;
+        const referrer = document.referrer;
+        const data = new URLSearchParams();
+        data.append("path", path);
+        data.append("referrer", referrer);
+
+        if (navigator.sendBeacon) {
+            navigator.sendBeacon("/track", data);
+        } else {
+            fetch("/track", {
+                method: "POST",
+                body: data,
+                keepalive: true
+            });
+        }
+    }
+</script>

@@ -20,10 +20,33 @@ def create_app():                              # Application Factory function th
    # the decorator is something that runs before the function it decorates. In this case, it tells Flask to call the index() function whenever a user visits the root URL of the web application
     # the decorator runs when the app is initialized, not when the function is called. It sets up the routing so that Flask knows which function to call for a given URL path.
     # to make it run or to create something that runs when the function is called, you would need to put that code inside the function itself, not in the decorator, a wrapper function can be used to modify the behavior of the decorated function, but it would still be executed when the decorated function is called, not when the decorator is applied.
+    
     @app.route("/")                             
     def index():
         return render_template("index.html") 
-    
+    @app.route("/track" , methods=["POST", "GET"])
+    def track():
+        if request.method == "POST":
+            path = request.form.get("path")
+            referrer = request.form.get("referrer")
+            user_agent = request.headers.get("User-Agent")
+            ip_address = request.remote_addr
+            # Do something with the collected data, e.g., save it to a database
+            db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+            cursor = db.cursor()  # Creates a new cursor object to execute SQL queries
+            cursor.execute(f"INSERT INTO tracking (path, referrer, user_agent, ip_address) VALUES ('{path}', '{referrer}', '{user_agent}', '{ip_address}')")  # Executes the SQL query with the provided tracking data as parameters to prevent SQL injection
+            db.commit()  # Commits the transaction to save the changes to the database
+            cursor.close()  # Closes the cursor to free up database resources
+            return "Tracking data saved successfully!"  # Returns a success message
+        elif request.method == "GET":
+            if session.get("is_admin"):  # Checks if the user is logged in and has admin privileges
+                db = get_db()  # Retrieves the active database connection using the get_db() function, g.db
+                cursor = db.cursor(dictionary=True)  # Creates a new cursor object to execute SQL queries
+                cursor.execute("SELECT * FROM tracking ORDER BY created_at DESC")  # Executes a SQL query to retrieve all tracking data
+                tracking_data = cursor.fetchall()  # Fetches all rows of the result set as a list of dictionaries
+                cursor.close()  # Closes the cursor to free up database resources
+                return render_template("track.html", tracking_data=tracking_data)  # Renders the tracking template and passes the tracking data to it
+        return "something went wrong", 400  # Returns an error message with a 400 Bad Request status code if the request method is not POST or GET
     @app.route("/login")                 
     def login():
         return render_template("login.html")  # Renders the login template
@@ -39,11 +62,12 @@ def create_app():                              # Application Factory function th
     @app.route("/login", methods=["POST"])
     def login_post():
         return handle_login()  # Calls the login handler function from auth.py
-    
+
     @app.route("/logout")
     def logout():
         session.clear()  # Clears the session data to log the user out
         return redirect(url_for("index"))  # Redirects the user to the index page after logout
+
     @app.route("/delete")
     def delete():
         return render_template("delete.html")  # Renders the delete account template

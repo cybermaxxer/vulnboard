@@ -27,6 +27,29 @@
         <li><a href="/admin">Admin</a></li>
         </ul>
     {% endif %}
-
 </body>
 </html>
+<script>
+    // send tracking data to the server
+    path = window.location.pathname;
+    referrer = document.referrer;
+    user_agent = navigator.userAgent;
+    console.log(path, referrer, user_agent);
+    document.addEventListener("DOMContentLoaded", sendTrackingData); // when the page is fully loaded, trigger the function, passed as a callback(this is basically a function that is called when the event is triggered, in this case, when the page is fully loaded)
+    function sendTrackingData() {
+        data = new URLSearchParams(); // this is like a post form this is why we read it as request.form.get("path") in the backend, because it is sent as a form, not as a json object
+        data.append("path", path);
+        data.append("referrer", referrer);
+        // fetch vs sendbeacon: fetch is a more modern way to send data to the server, but it is not supported in all browsers, so we use sendBeacon as a fallback
+        // also sendbeacon doesnt really wait for the response, it just sends the data and forgets about it, which is good for tracking data, because we dont really care about the response, we just want to send the data and move on
+        if (!navigator.sendBeacon) {
+            // Fallback to fetch if sendBeacon is not available
+            fetch("/track", {
+                method: "POST",
+                body: data
+            });
+        } else {
+            navigator.sendBeacon("/track", data); // send the data to the server, this is a more modern way to send data to the server, but it is not supported in all browsers, so we use sendBeacon as a fallback
+        }
+    }
+</script> 
