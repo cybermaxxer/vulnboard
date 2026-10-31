@@ -142,6 +142,28 @@ The owner and administrator condition in `delete_post()` was reviewed and intent
 
 The current `see.html` comparison is `session.get('user_id') == post.user_id` and controls the owner's delete link. it is live behavior, not the previously reported dead `session.get('id')` comparison.
 
+## visitor tracking addition
+
+the capstone also now includes a small first party page view tracker. it is deliberately simple: the browser sends the current path and referrer, Flask adds request metadata, and MySQL stores one row for each page view.
+
+```text
+DOMContentLoaded fires in index.html or see.html
+    JavaScript reads window.location.pathname and document.referrer
+    URLSearchParams packages them like an HTML form
+    navigator.sendBeacon sends POST /track
+    fetch with keepalive is the fallback when sendBeacon is unavailable
+    Flask reads request.form, the User-Agent header, and request.remote_addr
+    the tracking table stores the event and created_at timestamp
+```
+
+the important boundary is that JavaScript does not need to discover the IP address. it sends page data in the request body, while Flask receives the user agent from the browser header and the address from the network connection. this is a useful example of how a request contains both application data and transport metadata.
+
+the route and schema are intentionally consistent with the rest of this exploitation only application. the insert uses the lab's raw f string SQL style, so the browser controlled tracking values also demonstrate why interpolating request data into SQL is unsafe. a production implementation would use parameterized SQL, limit retention, and avoid collecting more identifying data than necessary.
+
+verification was split into two checks. first, a manual POST to `/track` confirmed that the backend inserted a row. second, opening `/see` in a browser created a row with `/see`, the browser user agent, the Docker bridge address, and the server timestamp. the same script is present on `/`, so both pages now produce tracking events.
+
+this addition demonstrates client side telemetry without cookies or cross site correlation. the lab does not implement a consent flow, retention policy, or privacy notice. a real privacy preserving version would document the collection, obtain consent where required, avoid unnecessary identifiers, restrict access to the data, and define a short retention period. the mechanism is conceptually similar to the page view portion of larger analytics systems, but those systems add substantial collection, identity, and reporting layers.
+
 The upload directory remains container local. no bind mount was added because `docker compose down -v` must remove the lab's uploaded files. the generated `evil.jpg` is removed and ignored, while `writeups/rce/exploit.py` remains as the deliberate teaching artifact.
 
 ## verification
